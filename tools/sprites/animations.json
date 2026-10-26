@@ -1,0 +1,65 @@
+{
+  "referenceSprite": "assets/sprites/astro_idle.png",
+  "animations": [
+    {
+      "state": "COLD",
+      "name": "cold",
+      "zip": "sprite_frames_256_5px_freezing.zip",
+      "intro": {
+        "from": 1,
+        "to": 125,
+        "step": 4
+      },
+      "loop": {
+        "from": 130,
+        "to": 139
+      },
+      "fps": 12,
+      "measureFrame": 1
+    },
+    {
+      "state": "SCARED",
+      "name": "scared",
+      "zip": "sprite_frames_256_5px_dizzy.zip",
+      "intro": {
+        "from": 1,
+        "to": 13
+      },
+      "loop": {
+        "from": 14,
+        "to": 29
+      },
+      "fps": 12,
+      "measureFrame": 1
+    },
+    {
+      "state": "HOT",
+      "name": "hot",
+      "zip": "sprite_frames_256_5px_sweating.zip",
+      "loop": {
+        "from": 16,
+        "to": 39
+      },
+      "fps": 10,
+      "measureFrame": 1
+    },
+    {
+      "state": "WALK",
+      "name": "walk",
+      "zip": "sprite_frames_256_5px_walking.zip",
+      "loop": {
+        "from": 7,
+        "to": 16
+      },
+      "fps": 10,
+      "scaleAdjust": 0.9
+    }
+  ],
+  "variants": [
+    {
+      "state": "RUN",
+      "of": "WALK",
+      "fps": 16
+    }
+  ]
+}
