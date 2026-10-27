@@ -22,8 +22,8 @@ import kotlin.math.min
 import kotlin.math.roundToInt
 
 /** Tamaño del escenario: el de los sprites fijos (astro_*.png). */
-private const val STAGE_W = 390f
-private const val STAGE_H = 629f
+internal const val STAGE_W = 390f
+internal const val STAGE_H = 629f
 
 /**
  * Dibuja al monito para un estado: la animación si existe (SpriteAnimations) o, si no,
@@ -31,6 +31,11 @@ private const val STAGE_H = 629f
  */
 @Composable
 fun PetStage(state: PetState, modifier: Modifier = Modifier) {
+    // Estados con escena en código (idle, aburrido, noche, tranquilo, emocionado, caricia, lluvia, calor, frío)
+    if (PetScenes.handles(state)) {
+        AliveStage(state, modifier)
+        return
+    }
     val animation = SpriteAnimations.forState(state)
     if (animation != null) {
         AnimatedLayer(animation, modifier)
@@ -82,7 +87,7 @@ private fun AnimatedLayer(animation: SpriteAnimation, modifier: Modifier) {
 }
 
 /** Escala uniforme y esquina del escenario para que quepa centrado en el área disponible. */
-private fun DrawScope.stageTransform(): Pair<Float, Offset> {
+internal fun DrawScope.stageTransform(): Pair<Float, Offset> {
     val scale = min(size.width / STAGE_W, size.height / STAGE_H)
     val origin = Offset((size.width - STAGE_W * scale) / 2f, (size.height - STAGE_H * scale) / 2f)
     return scale to origin
