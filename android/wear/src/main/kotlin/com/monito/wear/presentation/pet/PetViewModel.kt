@@ -10,6 +10,7 @@ import com.monito.shared.state.PetState
 import com.monito.wear.di.WatchContainer
 import com.monito.wear.domain.model.MotionType
 import com.monito.wear.domain.model.SensorInputs
+import com.monito.wear.domain.rules.SensorSanity
 import com.monito.wear.domain.rules.StateResolver
 import com.monito.wear.domain.rules.Thresholds
 import kotlinx.coroutines.Job
@@ -23,7 +24,6 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import java.time.LocalTime
 
 /**
  * Une sensores + datos del móvil, decide el estado (StateResolver) y reporta al móvil
@@ -34,12 +34,18 @@ class PetViewModel(private val container: WatchContainer) : ViewModel() {
     private val thresholds = Thresholds()
     private val inputs = MutableStateFlow(SensorInputs())
     private val forcedState = MutableStateFlow<PetState?>(null)
+    private val ignoreHeartRate = MutableStateFlow(false)
 
     private var shakeJob: Job? = null
     private var petJob: Job? = null
 
-    val uiState: StateFlow<PetUiState> = combine(inputs, forcedState) { current, forced ->
-        PetUiState(state = forced ?: StateResolver.resolve(current, thresholds), forced = forced != null)
+    val uiState: StateFlow<PetUiState> = combine(inputs, forcedState, ignoreHeartRate) { current, forced, hrIgnored ->
+        PetUiState(
+            state = forced ?: StateResolver.resolve(current, thresholds),
+            forced = forced != null,
+            inputs = current,
+            heartRateIgnored = hrIgnored,
+        )
     }.stateIn(viewModelScope, SharingStarted.Eagerly, PetUiState())
 
     init {
@@ -52,25 +58,27 @@ class PetViewModel(private val container: WatchContainer) : ViewModel() {
 
     private fun collectSources() {
         val hub = container.sensorHub
-        viewModelScope.launch { hub.temperature.collect { t -> inputs.update { it.copy(temperatureC = t) } } }
+        viewModelScope.launch { hub.temperature.collect { t -> inputs.update { it.copy(temperatureC = SensorSanity.temperature(t)) } } }
         viewModelScope.launch { hub.motion.collect { m -> inputs.update { it.copy(motion = m) } } }
-        viewModelScope.launch { container.heartRate.bpm.collect { bpm -> inputs.update { it.copy(heartRate = bpm) } } }
+        viewModelScope.launch {
+            combine(container.heartRate.bpm, ignoreHeartRate) { bpm, ignored ->
+                if (ignored) null else SensorSanity.heartRate(bpm)
+            }.collect { hr -> inputs.update { it.copy(heartRate = hr) } }
+        }
         viewModelScope.launch { container.phoneData.isRaining.collect { r -> inputs.update { it.copy(isRaining = r) } } }
         viewModelScope.launch { hub.shakes.collect { onShake() } }
     }
 
-    /** Cada segundo: hora, escaleras y tiempo quieto (los que no dependen de un evento). */
+    /** Cada segundo: escaleras y tiempo quieto (los que no dependen de un evento). */
     private fun startTicker() {
         viewModelScope.launch {
             while (true) {
                 delay(1000)
                 val now = System.currentTimeMillis()
                 val climbing = container.sensorHub.isClimbing(now)
-                val hour = LocalTime.now().hour
                 inputs.update {
                     val still = it.motion == MotionType.STILL && !climbing
                     it.copy(
-                        hourOfDay = hour,
                         climbing = climbing,
                         secondsStill = if (still) it.secondsStill + 1 else 0,
                     )
@@ -128,6 +136,19 @@ class PetViewModel(private val container: WatchContainer) : ViewModel() {
             delay(SHAKE_DURATION_MS)
             inputs.update { it.copy(shakeActive = false) }
         }
+    }
+
+    /** Modo dormir: lo activa o desactiva el usuario. Al despertar no arranca ya aburrido. */
+    fun setSleeping(on: Boolean) {
+        forcedState.value = null
+        inputs.update { it.copy(sleepMode = on, secondsStill = 0) }
+    }
+
+    fun toggleSleep() = setSleeping(!inputs.value.sleepMode)
+
+    /** Ignora el pulso (para probar sin que el emulador dispare emocionado/tranquilo). */
+    fun toggleIgnoreHeartRate() {
+        ignoreHeartRate.value = !ignoreHeartRate.value
     }
 
     /** Panel de simulación: null vuelve al modo automático. */

@@ -35,3 +35,16 @@ export const sampleBody = z.object({
   steps: z.number().int().min(0).nullish(),
   pressureHpa: z.number().min(300).max(1100).nullish(),
 });
+
+const MAX_SUMMARY_SPAN_MS = 48 * 60 * 60 * 1000;
+
+/** Tramo a resumir, en epoch ms. Máximo 48 h (un día local puede medir 23 o 25 h). */
+export const summaryQuery = z
+  .object({
+    from: z.coerce.number().int().positive(),
+    to: z.coerce.number().int().positive(),
+  })
+  .refine((v) => v.to > v.from && v.to - v.from <= MAX_SUMMARY_SPAN_MS, {
+    message: 'Rango inválido: "to" debe ser mayor que "from" y dentro de 48 h',
+    path: ['to'],
+  });

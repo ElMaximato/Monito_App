@@ -2,6 +2,7 @@ import * as petService from '../services/pet.service.js';
 import * as eventService from '../services/event.service.js';
 import * as stateService from '../services/state.service.js';
 import * as sampleService from '../services/sample.service.js';
+import * as summaryService from '../services/summary.service.js';
 
 export async function register(req, res) {
   const { pet, created } = await petService.registerPet(req.body);
@@ -37,4 +38,8 @@ export async function getStateMinutes(req, res) {
 export async function addSample(req, res) {
   await sampleService.addSample(req.params.deviceId, req.body);
   res.status(201).json({ ok: true });
+}
+
+export async function getSummary(req, res) {
+  res.json(await summaryService.summary(req.params.deviceId, req.query));
 }

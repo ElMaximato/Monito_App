@@ -14,10 +14,19 @@ class StateResolverTest {
     }
 
     @Test
-    fun `la sacudida gana sobre todo lo demas`() {
+    fun `la caricia gana sobre todo lo demas`() {
         val inputs = SensorInputs(
-            shakeActive = true, petActive = true, isRaining = true,
-            motion = MotionType.RUN, temperatureC = 40f, hourOfDay = 23,
+            petActive = true, shakeActive = true, sleepMode = true, isRaining = true,
+            motion = MotionType.RUN, temperatureC = 40f, heartRate = 130,
+        )
+        assertEquals(PetState.PET, StateResolver.resolve(inputs))
+    }
+
+    @Test
+    fun `la sacudida gana sobre actividad y clima`() {
+        val inputs = SensorInputs(
+            shakeActive = true, isRaining = true,
+            motion = MotionType.RUN, temperatureC = 40f,
         )
         assertEquals(PetState.SCARED, StateResolver.resolve(inputs))
     }
@@ -29,14 +38,15 @@ class StateResolverTest {
     }
 
     @Test
-    fun `correr gana sobre caminar por orden de candidatos y escaleras sobre ambos`() {
-        assertEquals(PetState.RUN, StateResolver.resolve(SensorInputs(motion = MotionType.RUN)))
-        assertEquals(PetState.CLIMB, StateResolver.resolve(SensorInputs(motion = MotionType.RUN, climbing = true)))
+    fun `correr y subir escaleras se ven como caminar`() {
+        assertEquals(PetState.WALK, StateResolver.resolve(SensorInputs(motion = MotionType.RUN)))
+        assertEquals(PetState.WALK, StateResolver.resolve(SensorInputs(motion = MotionType.RUN, climbing = true)))
+        assertEquals(PetState.WALK, StateResolver.resolve(SensorInputs(climbing = true)))
     }
 
     @Test
-    fun `lluvia gana sobre noche`() {
-        assertEquals(PetState.RAIN, StateResolver.resolve(SensorInputs(isRaining = true, hourOfDay = 23)))
+    fun `lluvia gana sobre aburrido`() {
+        assertEquals(PetState.RAIN, StateResolver.resolve(SensorInputs(isRaining = true, secondsStill = 600)))
     }
 
     @Test
@@ -55,10 +65,27 @@ class StateResolverTest {
     }
 
     @Test
-    fun `noche y aburrimiento`() {
-        assertEquals(PetState.NIGHT, StateResolver.resolve(SensorInputs(hourOfDay = 23)))
-        assertEquals(PetState.NIGHT, StateResolver.resolve(SensorInputs(hourOfDay = 3)))
-        assertEquals(PetState.BORED, StateResolver.resolve(SensorInputs(hourOfDay = 12, secondsStill = 300)))
-        assertEquals(PetState.NIGHT, StateResolver.resolve(SensorInputs(hourOfDay = 23, secondsStill = 600)))
+    fun `aburrimiento por tiempo quieto`() {
+        assertEquals(PetState.IDLE, StateResolver.resolve(SensorInputs(secondsStill = 299)))
+        assertEquals(PetState.BORED, StateResolver.resolve(SensorInputs(secondsStill = 300)))
+    }
+
+    @Test
+    fun `dormir es un modo y no depende de la hora`() {
+        // sin el modo activo, ninguna hora hace dormir (ya no existe hourOfDay)
+        assertEquals(PetState.IDLE, StateResolver.resolve(SensorInputs()))
+        assertEquals(PetState.NIGHT, StateResolver.resolve(SensorInputs(sleepMode = true)))
+    }
+
+    @Test
+    fun `dormir gana sobre sensores pero no sobre la caricia`() {
+        val everything = SensorInputs(
+            sleepMode = true, shakeActive = true, isRaining = true, temperatureC = 40f,
+            heartRate = 130, motion = MotionType.WALK, secondsStill = 600,
+        )
+        assertEquals(PetState.NIGHT, StateResolver.resolve(everything))
+        assertEquals(PetState.PET, StateResolver.resolve(everything.copy(petActive = true)))
+        // al terminar la caricia vuelve a dormir
+        assertEquals(PetState.NIGHT, StateResolver.resolve(everything.copy(petActive = false)))
     }
 }

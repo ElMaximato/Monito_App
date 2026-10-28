@@ -7,6 +7,7 @@ import com.monito.mobile.data.remote.dto.RegisterPetRequest
 import com.monito.mobile.data.remote.dto.SampleRequest
 import com.monito.mobile.data.remote.dto.StateLogRequest
 import com.monito.mobile.data.remote.dto.UpdatePetRequest
+import com.monito.mobile.domain.model.DailySummary
 import com.monito.mobile.domain.model.Pet
 import com.monito.mobile.domain.model.StateMinutes
 import com.monito.mobile.domain.repository.PetRepository
@@ -51,4 +52,7 @@ class PetRepositoryImpl(
 
     override suspend fun getStateMinutes(): List<StateMinutes> =
         api.getStateMinutes(deviceId).map { it.toDomain() }
+
+    override suspend fun getDailySummary(fromMillis: Long, toMillis: Long): DailySummary =
+        api.getSummary(deviceId, fromMillis, toMillis).toDomain()
 }

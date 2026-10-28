@@ -9,6 +9,7 @@ data class SensorInputs(
     val isRaining: Boolean = false,
     val shakeActive: Boolean = false,
     val petActive: Boolean = false,
-    val hourOfDay: Int = 12,
+    /** Modo dormir: lo activa el usuario (no depende de la hora). */
+    val sleepMode: Boolean = false,
     val secondsStill: Long = 0,
 )

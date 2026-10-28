@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.monito.mobile.di.AppContainer
+import com.monito.mobile.presentation.day.DayViewModel
 import com.monito.mobile.presentation.hub.HubViewModel
 import com.monito.mobile.presentation.profile.ProfileViewModel
 
@@ -21,5 +22,11 @@ fun profileViewModelFactory(container: AppContainer): ViewModelProvider.Factory 
             container.updatePet,
             container.watchMessenger,
         )
+    }
+}
+
+fun dayViewModelFactory(container: AppContainer): ViewModelProvider.Factory = viewModelFactory {
+    initializer {
+        DayViewModel(container.getDailySummary, container.getWeatherReport)
     }
 }

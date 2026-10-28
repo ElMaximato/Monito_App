@@ -15,6 +15,7 @@ Errores: `{ "error": "mensaje", "details": {...} }`.
 | GET   | `/pets/:deviceId/states?limit=50` | Últimos tramos de estado |
 | GET   | `/pets/:deviceId/state-minutes` | Minutos acumulados por estado |
 | POST  | `/pets/:deviceId/samples` | Muestra de sensores |
+| GET   | `/pets/:deviceId/summary?from=&to=` | Resumen de un tramo (el día local): minutos en movimiento, quieto y dormido, pasos y pulso |
 
 ## Ejemplos
 
@@ -37,3 +38,16 @@ Respuesta:
 `POST /pets/:deviceId/samples` →
 `{ "recordedAt": 1792570000000, "temperatureC": 31.5, "heartRate": 72, "steps": 1200, "pressureHpa": 1012.4 }`
 (todos opcionales salvo `recordedAt`)
+
+`GET /pets/:deviceId/summary?from=1793000000000&to=1793086400000` (epoch ms; máximo 48 h; el móvil manda el día local)
+```json
+{
+  "from": 1793000000000, "to": 1793086400000,
+  "trackedMinutes": 410.5, "movingMinutes": 62.3, "restingMinutes": 300.2, "sleepMinutes": 48,
+  "steps": 4210,
+  "heartRate": { "avg": 78, "min": 58, "max": 131, "samples": 392 },
+  "states": [{ "state": "IDLE", "minutes": 210.4 }, { "state": "WALK", "minutes": 62.3 }]
+}
+```
+`heartRate` es `null` si no hubo lecturas. En movimiento = WALK, RUN y CLIMB; dormido = NIGHT; el resto cuenta como quieto.
+Los pasos salen de las diferencias del contador acumulado del reloj (si se reinicia, cuenta desde cero).

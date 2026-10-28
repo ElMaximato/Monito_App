@@ -47,7 +47,7 @@ class SceneFrame(
 )
 
 private object C {
-    const val BG = 0xFF000000L          // fondo de la pantalla del reloj
+    const val BG = SpaceScene.SKY       // color del cielo: tapa partes del cuerpo (brazos de fábrica)
     const val OUTLINE = 0xFF201D38L
     const val CREAM = 0xFFFCF3E4L
     const val VISOR_SIT = 0xFF353C56L
@@ -367,7 +367,6 @@ object PetScenes {
         val rx = 14f + 151f * open
         val ry = 8f + 54f * open
         return scene(bob = breath(t, 1.2f), eyes = blink(t), gy = if (t < 1.8f) -10f else 0f) {
-            bgAbs.ellipse(195f, 556f, 150f, 14f, C.PUDDLE)
             if (grow > 0f) {
                 var y = curTop
                 while (y < poleBotY) {

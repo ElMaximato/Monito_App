@@ -13,9 +13,11 @@ class PetStateTest {
     }
 
     @Test
-    fun `la sacudida siempre tiene la mayor prioridad`() {
-        val best = PetState.entries.minBy { it.priority }
-        assertEquals(PetState.SCARED, best)
+    fun `la caricia siempre tiene la mayor prioridad y dormir va justo despues`() {
+        val sorted = PetState.entries.sortedBy { it.priority }
+        assertEquals(PetState.PET, sorted[0])
+        assertEquals(PetState.NIGHT, sorted[1])
+        assertTrue(PetState.PET.priority < PetState.SCARED.priority)
         assertTrue(PetState.entries.all { it.priority in 1..8 })
     }
 }

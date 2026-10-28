@@ -8,8 +8,10 @@ import com.monito.mobile.data.repository.WeatherRepositoryImpl
 import com.monito.mobile.domain.repository.PetRepository
 import com.monito.mobile.domain.repository.WeatherRepository
 import com.monito.mobile.domain.usecase.EnsurePetUseCase
+import com.monito.mobile.domain.usecase.GetDailySummaryUseCase
 import com.monito.mobile.domain.usecase.GetPetUseCase
 import com.monito.mobile.domain.usecase.GetStateMinutesUseCase
+import com.monito.mobile.domain.usecase.GetWeatherReportUseCase
 import com.monito.mobile.domain.usecase.UpdatePetUseCase
 import com.monito.mobile.sync.WeatherSync
 import com.monito.mobile.watch.WatchEventHandler
@@ -37,6 +39,8 @@ class AppContainer(context: Context) {
     val getPet = GetPetUseCase(petRepository)
     val getStateMinutes = GetStateMinutesUseCase(petRepository)
     val updatePet = UpdatePetUseCase(petRepository)
+    val getDailySummary = GetDailySummaryUseCase(petRepository)
+    val getWeatherReport = GetWeatherReportUseCase(weatherRepository)
 
     // reloj
     val watchMessenger = WatchMessenger(appContext)

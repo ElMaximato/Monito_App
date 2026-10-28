@@ -11,6 +11,12 @@ import androidx.wear.compose.material.Text
 import com.monito.shared.state.PetState
 
 /**
+ * Fuera del menú: correr y trepar (se ven como caminar) y dormir (tiene su propio botón, porque es un modo
+ * que se activa y desactiva, no un estado que se fuerza).
+ */
+private val HIDDEN_STATES = setOf(PetState.RUN, PetState.CLIMB, PetState.NIGHT)
+
+/**
  * Menú oculto (pulsación larga) para forzar cualquier estado sin depender de los sensores.
  * Sirve para la demo en el emulador.
  */
@@ -18,7 +24,11 @@ import com.monito.shared.state.PetState
 fun DebugPanel(
     current: PetState,
     forced: Boolean,
+    sleeping: Boolean,
+    heartRateIgnored: Boolean,
     onForce: (PetState?) -> Unit,
+    onToggleSleep: () -> Unit,
+    onToggleHeartRate: () -> Unit,
     onClose: () -> Unit,
 ) {
     ScalingLazyColumn(modifier = Modifier.fillMaxWidth()) {
@@ -30,7 +40,21 @@ fun DebugPanel(
                 modifier = Modifier.fillMaxWidth(),
             )
         }
-        PetState.entries.forEach { state ->
+        item {
+            Chip(
+                onClick = { onToggleSleep(); onClose() },
+                label = { Text(if (sleeping) "Despertar" else "Dormir") },
+                modifier = Modifier.fillMaxWidth(),
+            )
+        }
+        item {
+            Chip(
+                onClick = { onToggleHeartRate(); onClose() },
+                label = { Text(if (heartRateIgnored) "Usar pulso" else "Ignorar pulso") },
+                modifier = Modifier.fillMaxWidth(),
+            )
+        }
+        PetState.entries.filter { it !in HIDDEN_STATES }.forEach { state ->
             item {
                 Chip(
                     onClick = { onForce(state); onClose() },

@@ -50,7 +50,7 @@ monito/
 ## Demo sin reloj físico
 
 En el reloj, **pulsación larga** abre el panel de simulación: fuerza cualquier estado
-(calor, frío, lluvia, noche, correr, escaleras, pulso…). Un toque = caricia.
+(calor, frío, lluvia, dormir, correr, escaleras, pulso…). Un toque = caricia.
 Sensores reales del emulador: *Extended controls > Virtual sensors*.
 
 ## Estado del proyecto

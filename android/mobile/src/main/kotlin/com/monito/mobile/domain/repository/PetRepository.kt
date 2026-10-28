@@ -1,5 +1,6 @@
 package com.monito.mobile.domain.repository
 
+import com.monito.mobile.domain.model.DailySummary
 import com.monito.mobile.domain.model.Pet
 import com.monito.mobile.domain.model.StateMinutes
 import com.monito.shared.protocol.SampleMessage
@@ -15,4 +16,6 @@ interface PetRepository {
     suspend fun logState(message: StateMessage)
     suspend fun sendSample(message: SampleMessage)
     suspend fun getStateMinutes(): List<StateMinutes>
+    /** Resumen del tramo [fromMillis, toMillis] (el día local completo). */
+    suspend fun getDailySummary(fromMillis: Long, toMillis: Long): DailySummary
 }

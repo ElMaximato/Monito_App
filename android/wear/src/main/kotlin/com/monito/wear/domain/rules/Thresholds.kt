@@ -9,7 +9,5 @@ data class Thresholds(
     val coldC: Float = 15f,
     val highHeartRate: Int = 110,
     val lowHeartRate: Int = 65,
-    val nightStartHour: Int = 21,
-    val nightEndHour: Int = 6,
     val boredAfterSeconds: Long = 300,
 )

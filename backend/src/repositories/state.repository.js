@@ -42,3 +42,15 @@ export async function minutesByState(petId) {
   );
   return rows.map((r) => ({ state: r.state, minutes: Number(r.minutes) }));
 }
+
+/** Tramos que tocan [from, to] (los abiertos incluidos). El recorte lo hace utils/dailySummary. */
+export async function logsOverlapping(petId, from, to) {
+  const [rows] = await pool.execute(
+    `SELECT state_code AS state, started_at AS startedAt, ended_at AS endedAt
+       FROM state_log
+      WHERE pet_id = ? AND started_at < ? AND (ended_at IS NULL OR ended_at > ?)
+      ORDER BY started_at`,
+    [petId, to, from],
+  );
+  return rows;
+}

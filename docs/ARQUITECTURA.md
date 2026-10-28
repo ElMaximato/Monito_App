@@ -48,17 +48,20 @@ Los códigos y prioridades deben coincidir con `database/seed.sql`.
 
 | Prioridad | Estados |
 |-----------|---------|
-| 1 | SCARED (sacudida, 4 s) |
-| 2 | PET (caricia, 2 s) |
-| 3 | CLIMB, RUN, WALK |
-| 4 | EXCITED (pulso alto), CALM (pulso bajo y quieto) |
-| 5 | RAIN, HOT, COLD |
-| 6 | NIGHT |
+| 1 | PET (caricia, 2 s; interrumpe todo y luego vuelve a lo que había) |
+| 2 | NIGHT (dormir: modo que activa el usuario, no depende de la hora) |
+| 3 | SCARED (sacudida, 4 s) |
+| 4 | CLIMB, RUN, WALK |
+| 5 | EXCITED (pulso alto), CALM (pulso bajo y quieto) |
+| 6 | RAIN, HOT, COLD |
 | 7 | BORED |
 | 8 | IDLE |
 
+Dormir se activa y desactiva desde el panel de pulsación larga ("Dormir" / "Despertar"). Mientras
+está activo, los sensores no cambian la animación; solo una caricia la interrumpe 2 s.
+
 Umbrales provisionales en `wear/.../domain/rules/Thresholds.kt` (calor ≥ 30 °C, frío ≤ 15 °C,
-pulso alto ≥ 110, bajo ≤ 65, noche 21:00–06:00, aburrido a los 300 s sin moverse).
+pulso alto ≥ 110, bajo ≤ 65, aburrido a los 300 s sin moverse).
 
 ## Base de datos
 

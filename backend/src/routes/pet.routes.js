@@ -3,7 +3,7 @@ import { asyncHandler as h } from '../utils/asyncHandler.js';
 import { validate } from '../middlewares/validate.js';
 import * as c from '../controllers/pet.controller.js';
 import {
-  deviceParams, registerPetBody, updatePetBody, eventBody, stateLogBody, sampleBody,
+  deviceParams, registerPetBody, updatePetBody, eventBody, stateLogBody, sampleBody, summaryQuery,
 } from '../validators/pet.schemas.js';
 
 export const petRouter = Router();
@@ -17,3 +17,4 @@ petRouter.post('/:deviceId/states', validate({ params: deviceParams, body: state
 petRouter.get('/:deviceId/states', validate({ params: deviceParams }), h(c.listStates));
 petRouter.get('/:deviceId/state-minutes', validate({ params: deviceParams }), h(c.getStateMinutes));
 petRouter.post('/:deviceId/samples', validate({ params: deviceParams, body: sampleBody }), h(c.addSample));
+petRouter.get('/:deviceId/summary', validate({ params: deviceParams, query: summaryQuery }), h(c.getSummary));

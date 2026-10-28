@@ -1,5 +1,6 @@
 package com.monito.mobile.data.remote.api
 
+import com.monito.mobile.data.remote.dto.DailySummaryDto
 import com.monito.mobile.data.remote.dto.EventRequest
 import com.monito.mobile.data.remote.dto.PetDto
 import com.monito.mobile.data.remote.dto.RegisterPetRequest
@@ -12,6 +13,7 @@ import retrofit2.http.GET
 import retrofit2.http.PATCH
 import retrofit2.http.POST
 import retrofit2.http.Path
+import retrofit2.http.Query
 
 /** Cliente de nuestro backend (ver docs/API.md). */
 interface MonitoApi {
@@ -35,4 +37,11 @@ interface MonitoApi {
 
     @GET("api/pets/{deviceId}/state-minutes")
     suspend fun getStateMinutes(@Path("deviceId") deviceId: String): List<StateMinutesDto>
+
+    @GET("api/pets/{deviceId}/summary")
+    suspend fun getSummary(
+        @Path("deviceId") deviceId: String,
+        @Query("from") from: Long,
+        @Query("to") to: Long,
+    ): DailySummaryDto
 }
